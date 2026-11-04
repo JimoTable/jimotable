@@ -1,0 +1,31 @@
+JimoTable Community Free License
+Version 1.0, September 2026
+
+Copyright (c) 2026 JimoTable Authors and Contributors.
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to use,
+run, and deploy the Software in community free edition form for internal
+business evaluation, personal use, and development purposes, subject to the
+following conditions:
+
+1. Redistribution and Use:
+   - You may freely deploy and self-host the Community Free edition images.
+   - You may not reverse-engineer, decompile, or modify proprietary core binaries.
+   - You may not remove or alter any copyright, trademark, or attribution notices.
+
+2. Enterprise Features:
+   - Features identified as Enterprise (including, but not limited to, multi-tenant
+     enterprise SSO, cloud object storage drivers, automated security compliance
+     audit reports, and high-availability database clustering) require a commercial
+     enterprise license key.
+
+3. Disclaimer of Warranty:
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.

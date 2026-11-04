@@ -1,0 +1,15 @@
+# Environment and runtime state
+.env
+.state/
+secrets/
+backups/
+
+# Logs and system files
+*.log
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.swp
+*~

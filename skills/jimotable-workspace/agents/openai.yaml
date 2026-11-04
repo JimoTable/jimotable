@@ -1,0 +1,4 @@
+interface:
+  display_name: "jimoTable Workspace"
+  short_description: "通过 Workspace Agent API 管理结构与数据"
+  default_prompt: "Use $jimotable-workspace to connect to my deployed jimoTable environment and manage Bases, schemas, and records."

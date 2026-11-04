@@ -1,0 +1,164 @@
+name: jimotable-free
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-quota-environment: &quota-environment
+  JIMOTABLE_QUOTA_BASE_LIMIT: ${JIMOTABLE_QUOTA_BASE_LIMIT:?set JIMOTABLE_QUOTA_BASE_LIMIT in .env}
+  JIMOTABLE_QUOTA_TABLES_PER_BASE_LIMIT: ${JIMOTABLE_QUOTA_TABLES_PER_BASE_LIMIT:?set JIMOTABLE_QUOTA_TABLES_PER_BASE_LIMIT in .env}
+  JIMOTABLE_QUOTA_RECORD_LIMIT: ${JIMOTABLE_QUOTA_RECORD_LIMIT:?set JIMOTABLE_QUOTA_RECORD_LIMIT in .env}
+  JIMOTABLE_QUOTA_RECORDS_PER_TABLE_LIMIT: ${JIMOTABLE_QUOTA_RECORDS_PER_TABLE_LIMIT:?set JIMOTABLE_QUOTA_RECORDS_PER_TABLE_LIMIT in .env}
+  JIMOTABLE_QUOTA_FIELDS_PER_TABLE_LIMIT: ${JIMOTABLE_QUOTA_FIELDS_PER_TABLE_LIMIT:?set JIMOTABLE_QUOTA_FIELDS_PER_TABLE_LIMIT in .env}
+  JIMOTABLE_QUOTA_ATTACHMENT_BYTES_LIMIT: ${JIMOTABLE_QUOTA_ATTACHMENT_BYTES_LIMIT:?set JIMOTABLE_QUOTA_ATTACHMENT_BYTES_LIMIT in .env}
+  JIMOTABLE_QUOTA_AI_CONCURRENCY_LIMIT: ${JIMOTABLE_QUOTA_AI_CONCURRENCY_LIMIT:?set JIMOTABLE_QUOTA_AI_CONCURRENCY_LIMIT in .env}
+
+x-app-environment: &app-environment
+  <<: *quota-environment
+  JIMOTABLE_DB_URL: jdbc:postgresql://postgres:5432/jimotable
+  JIMOTABLE_ATTACHMENT_STORAGE_TYPE: local
+  JIMOTABLE_ATTACHMENT_STORAGE_LOCAL_ROOT: /var/lib/jimotable/attachments
+  JIMOTABLE_IMPORT_LOCAL_PATH: /var/lib/jimotable/imports
+  JIMOTABLE_AI_ENABLED: "true"
+  JIMOTABLE_AI_ADAPTER: mock
+  JIMOTABLE_AI_DELIVERY: "false"
+  JIMOTABLE_AI_CONNECTIONS: "true"
+  JIMOTABLE_AI_BINDINGS: "true"
+  JIMOTABLE_AI_ATTACHMENTS: "true"
+  JIMOTABLE_AI_TENANT_QUOTAS: "true"
+  JIMOTABLE_FEATURES_ATTACHMENTS: "true"
+  JIMOTABLE_BOUND_CURSOR_WRITES_ENABLED: "true"
+  JIMOTABLE_VIEW_GROUP_WRITES_ENABLED: "true"
+
+services:
+  postgres:
+    image: ${JIMOTABLE_POSTGRES_IMAGE:-postgres:18.6-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: jimotable
+      POSTGRES_USER: jimotable_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jimotable_owner -d jimotable"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    logging: *default-logging
+
+  db-init:
+    image: ${JIMOTABLE_POSTGRES_IMAGE:-postgres:18.6-alpine}
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGDATABASE: jimotable
+      PGUSER: jimotable_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      JIMOTABLE_RUNTIME_DB_USER: jimotable_runtime
+      JIMOTABLE_RUNTIME_DB_PASSWORD_FILE: /run/secrets/runtime_db_password
+      JIMOTABLE_WORKER_DB_USER: jimotable_worker
+      JIMOTABLE_WORKER_DB_PASSWORD_FILE: /run/secrets/worker_db_password
+    secrets:
+      - postgres_password
+      - runtime_db_password
+      - worker_db_password
+    volumes:
+      - ./selfhost/init-db.sh:/opt/jimotable/init-db.sh:ro
+    entrypoint: ["sh", "/opt/jimotable/init-db.sh"]
+    logging: *default-logging
+
+  api:
+    image: ${JIMOTABLE_IMAGE:?set JIMOTABLE_IMAGE in .env}:${JIMOTABLE_VERSION:?set JIMOTABLE_VERSION in .env}
+    user: "0:0"
+    restart: unless-stopped
+    command: ["api"]
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      <<: *app-environment
+      JIMOTABLE_DB_USER: jimotable_runtime
+      JIMOTABLE_DB_PASSWORD_FILE: /run/secrets/runtime_db_password
+      JIMOTABLE_MIGRATION_DB_URL: jdbc:postgresql://postgres:5432/jimotable
+      JIMOTABLE_MIGRATION_DB_USER: jimotable_owner
+      JIMOTABLE_MIGRATION_DB_PASSWORD_FILE: /run/secrets/postgres_password
+      JIMOTABLE_CREDENTIAL_DIGEST_KEY_FILE: /run/secrets/credential_digest_key
+      JIMOTABLE_INTERNAL_JWT_KEY_FILE: /run/secrets/internal_jwt_key
+      JIMOTABLE_BOOTSTRAP_SECRET_FILE: /run/secrets/bootstrap_secret
+      JIMOTABLE_PUBLIC_BASE_URL: ${JIMOTABLE_PUBLIC_BASE_URL:?set JIMOTABLE_PUBLIC_BASE_URL in .env}
+      JIMOTABLE_UPDATE_MANIFEST_URL: ${JIMOTABLE_UPDATE_MANIFEST_URL:-}
+      JIMOTABLE_API_PORT: "8080"
+    secrets:
+      - postgres_password
+      - runtime_db_password
+      - credential_digest_key
+      - internal_jwt_key
+      - bootstrap_secret
+    ports:
+      - "127.0.0.1:${JIMOTABLE_HTTP_PORT:?set JIMOTABLE_HTTP_PORT in .env}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/actuator/health >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 30s
+    volumes:
+      - app-data:/var/lib/jimotable
+    logging: *default-logging
+
+  worker:
+    image: ${JIMOTABLE_IMAGE:?set JIMOTABLE_IMAGE in .env}:${JIMOTABLE_VERSION:?set JIMOTABLE_VERSION in .env}
+    user: "0:0"
+    restart: unless-stopped
+    command: ["worker"]
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *app-environment
+      JIMOTABLE_DB_USER: jimotable_worker
+      JIMOTABLE_DB_PASSWORD_FILE: /run/secrets/worker_db_password
+      JIMOTABLE_CURSOR_KEY_FILE: /run/secrets/cursor_key
+      JIMOTABLE_WORKER_PORT: "8081"
+      JIMOTABLE_WORKER_ID: jimotable-free-worker
+    secrets:
+      - worker_db_password
+      - cursor_key
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8081/actuator/health >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+      start_period: 30s
+    volumes:
+      - app-data:/var/lib/jimotable
+    logging: *default-logging
+
+secrets:
+  postgres_password:
+    file: ./selfhost/secrets/postgres_password
+  runtime_db_password:
+    file: ./selfhost/secrets/runtime_db_password
+  worker_db_password:
+    file: ./selfhost/secrets/worker_db_password
+  credential_digest_key:
+    file: ./selfhost/secrets/credential_digest_key
+  internal_jwt_key:
+    file: ./selfhost/secrets/internal_jwt_key
+  cursor_key:
+    file: ./selfhost/secrets/cursor_key
+  bootstrap_secret:
+    file: ./selfhost/secrets/bootstrap_secret
+
+volumes:
+  postgres-data:
+  app-data:
