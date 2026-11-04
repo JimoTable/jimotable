@@ -67,7 +67,14 @@ Backups pause API/Worker. Protect `.env`, `selfhost/secrets/`, `selfhost/operato
 
 ## License
 
-See [LICENSE](LICENSE). This document describes Free delivery only and does not promise unreleased Cloud or enterprise features.
+`LICENSE` is a custom **Community Free License**, not an OSI-approved open-source licence — which is why GitHub labels it "Other". In short:
+
+- You may self-host and run the Free edition, including for internal business evaluation.
+- You may not reverse-engineer, decompile or modify the proprietary core binaries.
+- You may not remove copyright, trademark or attribution notices.
+- Cloud and enterprise features are not part of this distribution and are neither described nor promised here.
+
+See [LICENSE](LICENSE) for the binding text.
 
 ## Free edition boundary (0.2.1)
 

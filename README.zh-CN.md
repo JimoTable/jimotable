@@ -67,7 +67,14 @@ backup_id=$(./selfhost/jimotable.sh backup)
 
 ## 许可
 
-使用条件见 [LICENSE](LICENSE)。本说明仅描述 Free 交付内容，不承诺未交付的 Cloud 或企业功能。
+`LICENSE` 是自定义的 **Community Free License**，不是 OSI 认可的开源许可 —— 因此 GitHub 标注为 "Other"。要点：
+
+- 可自托管并运行 Free 版本，包括内部业务评估。
+- 不得逆向、反编译或修改专有核心二进制。
+- 不得移除版权、商标或署名声明。
+- Cloud 与企业功能不在本发行范围内，本文不作描述也不作承诺。
+
+具有约束力的文本见 [LICENSE](LICENSE)。
 
 ## Free 版本约束（0.2.1）
 

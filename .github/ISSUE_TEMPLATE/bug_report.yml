@@ -1,0 +1,71 @@
+name: Bug report
+description: Something in the Free self-host distribution does not work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: this repository ships the **Free self-host distribution**. The
+        Cloud and enterprise editions are not handled here. Do not paste credentials,
+        tokens, database dumps or customer data — replace them with placeholders.
+
+        Security problems must not be reported here; see [SECURITY.md](../SECURITY.md).
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: From `version.json`, the About dialog or `/v1/capabilities`.
+      placeholder: "0.2.1"
+    validations:
+      required: true
+  - type: textarea
+    id: build-info
+    attributes:
+      label: Build info
+      description: Contents of `build-info.json`, or the commit/channel shown in the About dialog.
+      render: json
+    validations:
+      required: false
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - linux/amd64
+        - other (not supported for this release)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ./quickstart.sh
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        Relevant output from `./selfhost/jimotable.sh status` or `logs`, with secrets removed.
+      render: shell
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I removed credentials, tokens and customer data from this report.
+          required: true
+        - label: This is not a security vulnerability (those go through SECURITY.md).
+          required: true
