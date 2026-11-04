@@ -63,7 +63,7 @@ backup_id=$(./selfhost/jimotable.sh backup)
 ./selfhost/jimotable.sh restore "$backup_id" --yes
 ```
 
-Backups pause API/Worker. Protect `.env`, `selfhost/secrets/`, `selfhost/operator.json` and backups, and copy backups to another host. See `INSTALL.en-US.md` in the release bundle for installation details.
+Backups pause API/Worker. Protect `.env`, `selfhost/secrets/`, `selfhost/operator.json` and backups, and copy backups to another host. See `INSTALL.en-US.md` for installation details.
 
 ## License
 
