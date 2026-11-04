@@ -29,15 +29,15 @@ The default URL is http://127.0.0.1:8080. Edit `.env` before starting to customi
 
 The published image is `ghcr.io/jimotable/jimotable:0.2.1` and pulls anonymously. Candidate validation uses the designated image supplied by the maintainer; an old cached image does not validate a new release.
 
-## Free defaults
-
-Each installation allows up to **2 Bases**, **20 tables per Base**, **30 fields per table**, **2,000,000 records across all tables**, **100,000 records per table**, and **1 GiB of attachments in total**.
+## Deployment defaults
 
 - Single-host Docker Compose with `postgres:18.6-alpine`.
 - Local persistent volumes for attachments and imports; S3/MinIO is not configured by default.
 - The AI adapter defaults to `mock` and external AI delivery is disabled. Real providers require separate configuration and verification. Attachment, import and asynchronous schema jobs remain available.
 - The API binds only to host loopback. Public access requires an HTTPS reverse proxy. PostgreSQL and Worker have no host ports.
 - Backup and restore tooling is included; multi-node HA, zero-downtime backup and fixed RPO/RTO are not promised.
+
+Edition limits are documented in [INSTALL.en-US.md](INSTALL.en-US.md) and may change between releases.
 
 ## Agent skills
 
@@ -76,8 +76,6 @@ Backups pause API/Worker. Protect `.env`, `selfhost/secrets/`, `selfhost/operato
 
 See [LICENSE](LICENSE) for the binding text.
 
-## Free edition boundary (0.2.1)
+## Upgrading
 
-Each Free installation supports one business tenant, including disabled tenants. These are ceilings enforced by the image; environment variables cannot raise them. Operators may allocate or lower quotas within these ceilings.
-
-Back up before upgrading. Existing multi-tenant databases require an explicit migration and cannot start with this Free image. The upgrade helper checks before changing the configured version. No tenants are automatically removed. Keep the previous image for recovery.
+Back up before upgrading. A database holding more tenants than the Free edition supports must be migrated first; the upgrade helper checks before changing the configured version and refuses rather than removing data. Keep the previous image for recovery.
