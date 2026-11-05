@@ -43,7 +43,14 @@ Linux 主机需要 Docker Engine 24+、Docker Compose v2、curl、jq、OpenSSL�
 
 工作区技能见 [skills/jimotable-workspace/](skills/jimotable-workspace/)，Base 数据技能见 [skills/jimotable-base-api/](skills/jimotable-base-api/)。按所用 Agent 工具的本地技能机制加载相应目录，并配置独立凭证。
 
-两个技能均已发布在本仓库 `skills/` 下，复制到所用 Agent 工具的本地技能目录即可。`npx skills add` 远程安装链路尚未核验，因此不提供。工作区 Agent 使用 `AGENT_USER` 凭证；Base Agent 使用发布后的 Base API 及其受限凭证。
+两个技能均已发布在本仓库 `skills/` 下，可用 [skills CLI](https://github.com/vercel-labs/skills) 安装（需 Node.js 22.20+ 与本机 `git`）：
+
+```bash
+npx skills add JimoTable/jimotable                   # 交互选择技能与 agent
+npx skills add JimoTable/jimotable --agent '*' -y    # 两个技能一次装完，无需交互
+```
+
+也可以直接把 `skills/<名称>/` 复制到所用 Agent 工具的本地技能目录。工作区 Agent 使用 `AGENT_USER` 凭证；Base Agent 使用发布后的 Base API 及其受限凭证。
 
 ## 模拟演示
 

@@ -43,7 +43,14 @@ Edition limits are documented in [INSTALL.en-US.md](INSTALL.en-US.md) and may ch
 
 Use [skills/jimotable-workspace/](skills/jimotable-workspace/) or [skills/jimotable-base-api/](skills/jimotable-base-api/) with your agent tool's local skill-loading mechanism and a dedicated credential.
 
-Both skills are published in this repository under `skills/`; copy them into your agent tool's local skill directory. A remote `npx skills add` flow is not offered because that installation path has not been verified. Workspace agents use an `AGENT_USER` credential. Base agents use a published Base API and its scoped credential.
+Both skills are published in this repository under `skills/`. Install them with the [skills CLI](https://github.com/vercel-labs/skills), which needs Node.js 22.20 or later and a local `git`:
+
+```bash
+npx skills add JimoTable/jimotable                   # pick skills and agents interactively
+npx skills add JimoTable/jimotable --agent '*' -y    # install both skills, no prompts
+```
+
+Or copy `skills/<name>/` into your agent tool's local skill directory. Workspace agents use an `AGENT_USER` credential. Base agents use a published Base API and its scoped credential.
 
 ## Simulation
 
